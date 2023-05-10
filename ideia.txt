@@ -1,0 +1,4 @@
+Jogo parecido com pedra papel tesoura utilizando Espadas, Machados e Lanças para criar um jogo de turnos.
+
+O objetivo do jogo é ganhar uma batalha, onde Espadas tem vantagem sobre machados, Lanças tem vantagem sobre Espadas
+e machados tem vantagem sobre lanças
