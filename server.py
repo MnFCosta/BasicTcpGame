@@ -2,7 +2,7 @@ import socket
 import random
 
 HOST = ''  # Listen on all available interfaces
-PORT = 5000  # The port number to use
+PORT = 5001  # The port number to use
 
 # Create a socket object
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -26,15 +26,17 @@ conn.send(str(number).encode())
 while True:
     print("Servidor esperando cliente")
     # Receive a guess from the client
-    guess = int(conn.recv(1024).decode())
-
+    arma_selecionada = int(conn.recv(1024).decode())
+ 
     # Check if the guess is correct, too high, or too low
-    if guess == number:
-        response = 'correct'
-    elif guess > number:
-        response = 'lower'
+    if arma_selecionada  == 1:
+        response = 'Arma: Lança'
+    elif arma_selecionada  == 2:
+        response = 'Arma: Machado'
     else:
-        response = 'higher'
+        response = 'Arma: Espada'
+
+    print(response)
 
     # Send the response back to the client
     conn.send(response.encode())
