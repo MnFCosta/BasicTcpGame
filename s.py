@@ -3,7 +3,7 @@ import json
 
 def run_server():
     host = '127.0.0.1'
-    port = 9999
+    port = 5000
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((host, port))
@@ -16,15 +16,35 @@ def run_server():
     player2, addr2 = server_socket.accept()
     print("Jogador 2 conectado!", addr2)
 
-    while True:
-        status_j1 = json.loads(player1.recv(1024).decode())
-        status_j2 = json.loads(player2.recv(1024).decode())
+    p1_status = {}
+    p2_status = {}
 
+    while True:
+        p1_status = json.loads(player1.recv(1024).decode())
+        p2_status = json.loads(player2.recv(1024).decode())
+
+        print(p1_status)
+        print(p2_status)
         """ result = determine_winner(player1_choice, player2_choice) """ 
-        print(status_j1)
-        print(status_j2)
-        """ player1.send(status_j2.encode())
-        player2.send(status_j1.encode())  """
+
+        p1_stat_bytes = str(p1_status).encode('utf-8')
+        p2_stat_bytes = str(p2_status).encode('utf-8')
+
+        p1_status["Vida"] = 8
+        p2_status["Vida"] = 5
+
+        status_dict = {"Você": p1_status,
+                       "Inimigo": p2_status}
+        
+        status_dict2 = {"Você": p2_status,
+                       "Inimigo": p1_status}
+        
+        updated_status_p1 = json.dumps(status_dict)
+        updated_status_p2 = json.dumps(status_dict2)
+
+        player1.sendall(updated_status_p1.encode())
+        player2.sendall(updated_status_p2.encode())
+
 
         """ if result == "Draw":
             print("It's a draw!")
@@ -37,9 +57,9 @@ def run_server():
         """ player1.close()
         player2.close() """
 
-""" def determine_winner(choice1, choice2):
-    if choice1 == choice2:
-        return "Draw"
+""" def determine_winner(stat_p1, stat_p2):
+    if stat_p1[1] & stat_p2[1]== '0':
+        return "Empate!"
 
     if (choice1 == "Rock" and choice2 == "Scissors") or \
        (choice1 == "Paper" and choice2 == "Rock") or \

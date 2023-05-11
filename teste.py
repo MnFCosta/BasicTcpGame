@@ -1,19 +1,7 @@
-escolha_arma = None
+data_dict = {'Statusp1': {'Vida': 3, 'Arma': 'Lança', 'Ação': 'Escolha de arma'}, 'Statusp2': {'Vida': 3, 'Arma': 'Espada', 'Ação': 'Escolha de arma'}}
 
-while escolha_arma not in ['1', '2', '3']:
-    escolha_arma = input('\n 1 - Lança \n 2 - Machado \n 3 - Espada \n Escolha a arma de seu gladiador: ')
-    
-    if escolha_arma == '1':
-        escolha_arma = "Lança"
-        break
-    elif escolha_arma == '2':
-        escolha_arma = "Machado"
-        break
-    elif escolha_arma == '3':
-        escolha_arma = "Espada"
-        break
-    else:
-        print("Escolha inválida!")
-        
+primeira_key= next(iter(data_dict))  # Get the first key
 
-print("Arma escolhida:", escolha_arma)
+valores_primeira_key = data_dict[primeira_key].values()  # Retrieve the values of the first key
+
+print(list(valores_primeira_key)[0]) 

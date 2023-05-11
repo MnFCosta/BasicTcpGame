@@ -3,7 +3,7 @@ import json
 
 def run_client():
     host = '127.0.0.1'
-    port = 9999
+    port = 5000
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((host, port))
@@ -31,20 +31,43 @@ def run_client():
                     print("\nEscolha inválida, tente novamente.")
                     
             status = {'Vida': 10,
-                      'Arma': escolha_arma}
+                      'Arma': escolha_arma,
+                      'Ação': 'Escolha de arma',}
             status = json.dumps(status)
             client_socket.sendall(status.encode())
         else:
-            acao = input('\n 1 - Ataque \n 2 - Ataque Forte  \n 3 - Defender \n Escolha uma ação: ')
+            print(resposta)
+            primeira_key= next(iter(resposta))  # Get the first key
+            valores_primeira_key = resposta[primeira_key].values() 
+            acao = []
+            while acao not in ['1', '2', '3']:
+                acao = input('\n 1 - Ataque \n 2 - Ataque Forte  \n 3 - Defender \n Escolha uma ação: ')
+                
+                if acao == '1':
+                    acao = "Ataque"
+                    break
+                elif acao == '2':
+                    acao = "Ataque Forte"
+                    break
+                elif acao == '3':
+                    acao = "Defender"
+                    break
+                else:
+                    print("\nEscolha inválida, tente novamente.")
+
+            vida_value = list(valores_primeira_key)[0]
+            
+            status = {'Vida': vida_value,
+                      'Arma': escolha_arma,
+                      'Ação': acao,}
+            status = json.dumps(status)
+            client_socket.sendall(status.encode())
         
-        """ client_socket.send(choice.encode()) """
+        resposta = json.loads((client_socket.recv(1024).decode()))
 
-        result = client_socket.recv(1024).decode()
-
-        if result != "Draw":
-            break
 
     client_socket.close()
+
 
 if __name__ == '__main__':
     run_client()
