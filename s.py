@@ -27,11 +27,7 @@ def run_server():
         print(p2_status)
         """ result = determine_winner(player1_choice, player2_choice) """ 
 
-        p1_stat_bytes = str(p1_status).encode('utf-8')
-        p2_stat_bytes = str(p2_status).encode('utf-8')
-
-        p1_status["Vida"] = 8
-        p2_status["Vida"] = 5
+        mudar_status(p1_status,p2_status)
 
         status_dict = {"Você": p1_status,
                        "Inimigo": p2_status}
@@ -57,16 +53,47 @@ def run_server():
         """ player1.close()
         player2.close() """
 
-""" def determine_winner(stat_p1, stat_p2):
-    if stat_p1[1] & stat_p2[1]== '0':
+def mudar_status(stat_p1, stat_p2):
+    #Quando Início do round
+    if (stat_p1['Ação'] == 'Escolha de arma' and stat_p2['Ação'] == 'Escolha de arma'):
+        pass
+    #Quando defendido
+    if (stat_p1['Ação'] == 'Ataque' and stat_p2['Ação'] == 'Defesa'):
+        pass
+    elif(stat_p2['Ação'] == 'Ataque' and stat_p1['Ação'] == 'Defesa'):
+        pass
+    elif(stat_p1['Ação'] == 'Ataque Forte' and stat_p2['Ação'] == 'Defesa'):
+        pass
+    elif(stat_p2['Ação'] == 'Ataque Forte' and stat_p1['Ação'] == 'Defesa'):
+        pass
+    #Ataque vs ataque
+    elif(stat_p1['Ação'] == 'Ataque' and stat_p2['Ação'] == 'Ataque'):
+        stat_p1['Vida'] -= 2
+        stat_p2['Vida'] -= 2
+    #Ataque forte vs Ataque Forte
+    elif(stat_p1['Ação'] == 'Ataque Forte' and stat_p2['Ação'] == 'Ataque Forte'):
+        stat_p1['Vida'] -= 6
+        stat_p2['Vida'] -= 6
+    #Ataque forte vs Ataque
+    elif(stat_p1['Ação'] == 'Ataque' and stat_p2['Ação'] == 'Ataque Forte'):
+        stat_p1['Vida'] -= 6
+        stat_p2['Vida'] -= 2
+
+    elif(stat_p2['Ação'] == 'Ataque' and stat_p1['Ação'] == 'Ataque Forte'):
+        stat_p1['Vida'] -= 2
+        stat_p2['Vida'] -= 6
+
+""" def resultado_jogo(stat_p1, stat_p2):
+    
+    if stat_p1[0] & stat_p2[0]== '0':
         return "Empate!"
-
-    if (choice1 == "Rock" and choice2 == "Scissors") or \
-       (choice1 == "Paper" and choice2 == "Rock") or \
-       (choice1 == "Scissors" and choice2 == "Paper"):
-        return "Player 1 wins!"
-
-    return "Player 2 wins!" """
+    
+    if(stat_p1[0] == 0):
+        return "Jogador 2 ganhou!"
+    
+    if(stat_p2[0] == 0):
+        return "Jogador 1 venceu!" """
+    
 
 if __name__ == '__main__':
     run_server()
