@@ -11,6 +11,8 @@ def run_client():
 
     escolha_arma = ''
     acao = ''
+    bloqueios_restante = 2
+    ataques_fortes = 1
     
 
     while True:
@@ -46,11 +48,13 @@ def run_client():
                 if acao == '1':
                     acao = "Ataque"
                     break
-                elif acao == '2':
+                elif acao == '2' and ataques_fortes > 0:
                     acao = "Ataque Forte"
+                    ataques_fortes -= 1
                     break
-                elif acao == '3':
+                elif acao == '3' and bloqueios_restante > 0:
                     acao = "Defender"
+                    bloqueios_restante -= 1
                     break
                 else:
                     print("\nEscolha inválida, tente novamente.")
