@@ -3,7 +3,7 @@ import json
 
 def run_server():
     host = '127.0.0.1'
-    port = 5000
+    port = 5001
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((host, port))
@@ -19,81 +19,109 @@ def run_server():
     p1_status = {}
     p2_status = {}
 
-    while True:
-        p1_status = json.loads(player1.recv(1024).decode())
-        p2_status = json.loads(player2.recv(1024).decode())
+    try:
+        while True:
+            p1_data = player1.recv(1024).decode()
+            p2_data = player2.recv(1024).decode()
+            try:
+                p1_status = json.loads(p1_data)
+                p2_status = json.loads(p2_data)
+            except:
+                pass
 
-        print(p1_status)
-        print(p2_status)
-        """ result = determine_winner(player1_choice, player2_choice) """ 
+            mudar_status(p1_status,p2_status)
+            resultado = resultado_jogo(p1_status, p2_status) 
+            
 
-        mudar_status(p1_status,p2_status)
+            if resultado == "Continua":
+                status_dict = {"Você": p1_status,
+                            "Inimigo": p2_status}
+                
+                status_dict2 = {"Você": p2_status,
+                            "Inimigo": p1_status}
+            
 
-        status_dict = {"Você": p1_status,
-                       "Inimigo": p2_status}
-        
-        status_dict2 = {"Você": p2_status,
-                       "Inimigo": p1_status}
-        
-        updated_status_p1 = json.dumps(status_dict)
-        updated_status_p2 = json.dumps(status_dict2)
-
-        player1.sendall(updated_status_p1.encode())
-        player2.sendall(updated_status_p2.encode())
+                updated_status_p1 = json.dumps(status_dict)
+                updated_status_p2 = json.dumps(status_dict2)
 
 
-        """ if result == "Draw":
-            print("It's a draw!")
-        else:
-            print("Player 1:", player1_choice)
-            print("Player 2:", player2_choice)
-            print("Result:", result)
-            break """
+                player1.sendall(updated_status_p1.encode())
+                player2.sendall(updated_status_p2.encode())
+            else:
+                if resultado == "Empate":
+                    player1.send(resultado.encode())
+                    player2.send(resultado.encode())
+                elif resultado == "Jogador 2 ganhou!":
+                    player1.send(resultado.encode())
+                    player2.send(resultado.encode())
+                else:
+                    player1.send(resultado.encode())
+                    player2.send(resultado.encode())
+    except BrokenPipeError:
+        print("Todos os clientes conectados não quiseram jogar novamente, fim de jogo!")
+        server_socket.close()
 
-        """ player1.close()
-        player2.close() """
 
 def mudar_status(stat_p1, stat_p2):
     #Quando Início do round
     if (stat_p1['Ação'] == 'Escolha de arma' and stat_p2['Ação'] == 'Escolha de arma'):
-        pass
-    #Quando defendido
-    if (stat_p1['Ação'] == 'Ataque' and stat_p2['Ação'] == 'Defesa'):
-        pass
-    elif(stat_p2['Ação'] == 'Ataque' and stat_p1['Ação'] == 'Defesa'):
-        pass
-    elif(stat_p1['Ação'] == 'Ataque Forte' and stat_p2['Ação'] == 'Defesa'):
-        pass
-    elif(stat_p2['Ação'] == 'Ataque Forte' and stat_p1['Ação'] == 'Defesa'):
-        pass
-    #Ataque vs ataque
-    elif(stat_p1['Ação'] == 'Ataque' and stat_p2['Ação'] == 'Ataque'):
-        stat_p1['Vida'] -= 2
-        stat_p2['Vida'] -= 2
-    #Ataque forte vs Ataque Forte
-    elif(stat_p1['Ação'] == 'Ataque Forte' and stat_p2['Ação'] == 'Ataque Forte'):
-        stat_p1['Vida'] -= 6
-        stat_p2['Vida'] -= 6
-    #Ataque forte vs Ataque
-    elif(stat_p1['Ação'] == 'Ataque' and stat_p2['Ação'] == 'Ataque Forte'):
-        stat_p1['Vida'] -= 6
-        stat_p2['Vida'] -= 2
+        #checar vantagem
+        if (stat_p1['Vantagem'] == '' and stat_p2['Vantagem'] == ''):
+            vantagem_dict = {
+                ('Lança', 'Espada'): ('Sim', 'Não'),
+                ('Espada', 'Machado'): ('Sim', 'Não'),
+                ('Machado', 'Lança'): ('Sim', 'Não'),
+                }
 
-    elif(stat_p2['Ação'] == 'Ataque' and stat_p1['Ação'] == 'Ataque Forte'):
-        stat_p1['Vida'] -= 2
-        stat_p2['Vida'] -= 6
+            # Usando as armas dos jogadores para procurar no dicionario "vantagem_dict" o valor correspondente de vantagem
+            vantagem = vantagem_dict.get((stat_p1['Arma'], stat_p2['Arma']))
 
-""" def resultado_jogo(stat_p1, stat_p2):
+            #caso vantagem existir, reduza o hp dos jogadores
+            if vantagem:
+                stat_p1['Vantagem'] = vantagem[0]
+                stat_p2['Vantagem'] = vantagem[1]
+            elif stat_p1['Arma'] == stat_p2['Arma']:
+                stat_p1['Vantagem'] = 'Não'
+                stat_p2['Vantagem'] = 'Não'
+            else:
+                stat_p1['Vantagem'] = 'Não'
+                stat_p2['Vantagem'] = 'Sim'
     
-    if stat_p1[0] & stat_p2[0]== '0':
+    #tabela de açoes com as possíveis combinações de escolhas e valores para redução de vida
+    acoes = {
+        ('Ataque', 'Ataque'): (2, 2),
+        ('Ataque Forte', 'Ataque Forte'): (4, 4),
+        ('Ataque', 'Ataque Forte'): (4, 2),
+        ('Ataque Forte', 'Ataque'): (2, 4),
+        }
+
+    # Usando as acoes dos jogadores para procurar no dicionario "acoes" o valor correspondente  de reducao
+    reducao = acoes.get((stat_p1['Ação'], stat_p2['Ação']))
+
+    #caso reducao existir, reduza o hp dos jogadores
+    if reducao:
+        if(stat_p1['Vantagem'] == 'Sim'):
+            stat_p1['Vida'] -= reducao[0] 
+            stat_p2['Vida'] -= reducao[1] + 1
+        elif(stat_p1['Vantagem'] == stat_p2['Vantagem']):
+            stat_p1['Vida'] -= reducao[0] 
+            stat_p2['Vida'] -= reducao[1] 
+        else:
+            stat_p1['Vida'] -= reducao[0] + 1 
+            stat_p2['Vida'] -= reducao[1] 
+            
+def resultado_jogo(stat_p1, stat_p2):
+    
+    if stat_p1['Vida']  <= 0 and stat_p2['Vida'] <= 0:
         return "Empate!"
     
-    if(stat_p1[0] == 0):
+    elif(stat_p1['Vida'] <= 0):
         return "Jogador 2 ganhou!"
     
-    if(stat_p2[0] == 0):
-        return "Jogador 1 venceu!" """
+    elif(stat_p2['Vida'] <= 0):
+        return "Jogador 1 ganhou!"
+    else:
+        return f"Continua"
     
-
 if __name__ == '__main__':
     run_server()

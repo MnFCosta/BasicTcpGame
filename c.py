@@ -3,11 +3,12 @@ import json
 
 def run_client():
     host = '127.0.0.1'
-    port = 5000
+    port = 5001
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((host, port))
-    print("Connectado ao servidor.")
+    print("Conectado ao servidor.")
+
 
     escolha_arma = ''
     acao = ''
@@ -34,10 +35,12 @@ def run_client():
                     
             status = {'Vida': 10,
                       'Arma': escolha_arma,
-                      'Ação': 'Escolha de arma',}
+                      'Ação': 'Escolha de arma',
+                      'Vantagem': '',}
             status = json.dumps(status)
             client_socket.sendall(status.encode())
         else:
+            resposta = json.loads(resposta)
             print(resposta)
             primeira_key= next(iter(resposta))  # Get the first key
             valores_primeira_key = resposta[primeira_key].values() 
@@ -45,33 +48,67 @@ def run_client():
             while acao not in ['1', '2', '3']:
                 acao = input('\n 1 - Ataque \n 2 - Ataque Forte  \n 3 - Defender \n Escolha uma ação: ')
                 
-                if acao == '1':
+                if acao == '3' and bloqueios_restante < 1:
+                    print("\nVocê não pode mais se defender!.")
+                    acao = 4
+                
+                elif acao == '2' and ataques_fortes < 1:
+                    print("\nVocê não pode mais usar ataques fortes!.")
+                    acao = 4
+
+                elif acao == '1':
                     acao = "Ataque"
                     break
-                elif acao == '2' and ataques_fortes > 0:
+                elif acao == '2':
                     acao = "Ataque Forte"
                     ataques_fortes -= 1
                     break
-                elif acao == '3' and bloqueios_restante > 0:
+                elif acao == '3':
                     acao = "Defender"
                     bloqueios_restante -= 1
                     break
                 else:
-                    print("\nEscolha inválida, tente novamente.")
+                    print("\nEscolha invalida, tente novamente!.")
+                
 
             vida_value = list(valores_primeira_key)[0]
+            vantagem_value = list(valores_primeira_key)[3]
             
             status = {'Vida': vida_value,
                       'Arma': escolha_arma,
-                      'Ação': acao,}
+                      'Ação': acao,
+                      'Vantagem': vantagem_value,}
             status = json.dumps(status)
             client_socket.sendall(status.encode())
         
-        resposta = json.loads((client_socket.recv(1024).decode()))
-
-
-    client_socket.close()
-                                               
+        resposta = client_socket.recv(1024).decode()
+        
+        if resposta == "Empate!":
+            print(f"\n{resposta}")
+            jogar_denovo = int(input("\n1 - Sim\n 2 - Não\n Deseja jogar o jogo novamente?: "))
+            if jogar_denovo == 1:
+                escolha_arma = ''
+            else:
+                break
+        elif resposta == "Jogador 1 ganhou!":
+            print(f"\n{resposta}")
+            jogar_denovo = int(input("\n1 - Sim\n 2 - Não\n Deseja jogar o jogo novamente?: "))
+            if jogar_denovo == 1:
+                escolha_arma = ''
+            else:
+                client_socket.close()
+                break
+        elif resposta == "Jogador 2 ganhou!":
+            print(f"\n{resposta}")
+            jogar_denovo = int(input("\n1 - Sim\n 2 - Não\n Deseja jogar o jogo novamente?: "))
+            if jogar_denovo == 1:
+                escolha_arma = ''
+            else:
+                client_socket.close()
+                break
+        else:
+            pass
+    
 
 if __name__ == '__main__':
     run_client()
