@@ -88,6 +88,8 @@ def run_client():
             jogar_denovo = int(input("\n1 - Sim\n 2 - Não\n Deseja jogar o jogo novamente?: "))
             if jogar_denovo == 1:
                 escolha_arma = ''
+                bloqueios_restante = 2
+                ataques_fortes = 1
             else:
                 break
         elif resposta == "Jogador 1 ganhou!":
@@ -95,6 +97,8 @@ def run_client():
             jogar_denovo = int(input("\n1 - Sim\n 2 - Não\n Deseja jogar o jogo novamente?: "))
             if jogar_denovo == 1:
                 escolha_arma = ''
+                bloqueios_restante = 2
+                ataques_fortes = 1
             else:
                 client_socket.close()
                 break
@@ -103,6 +107,8 @@ def run_client():
             jogar_denovo = int(input("\n1 - Sim\n 2 - Não\n Deseja jogar o jogo novamente?: "))
             if jogar_denovo == 1:
                 escolha_arma = ''
+                bloqueios_restante = 2
+                ataques_fortes = 1
             else:
                 client_socket.close()
                 break

@@ -57,7 +57,7 @@ def run_server():
                 else:
                     player1.send(resultado.encode())
                     player2.send(resultado.encode())
-    except BrokenPipeError:
+    except:
         print("Todos os clientes conectados não quiseram jogar novamente, fim de jogo!")
         server_socket.close()
 
